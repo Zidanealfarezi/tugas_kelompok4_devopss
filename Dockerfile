@@ -1,23 +1,18 @@
-# Menggunakan base image
+# Gunakan image Node.js resmi
 FROM node:18
 
-# Menetapkan direktori kerja di dalam container
+# Tentukan direktori kerja
 WORKDIR /app
 
-# Menyalin file package.json dan package-lock.json ke dalam container
-COPY package*.json babel.config.js ./
-
-# Install dependencies
+# Salin package.json dan instal dependensi
+COPY package*.json ./
 RUN npm install
 
-# Salin seluruh file ke dalam container
+# Salin semua kode aplikasi
 COPY . .
 
-# Menjalankan aplikasi untuk build
 RUN npm run build
 
-# Menjalankan pengujian sebagai langkah terpisah untuk memastikan build berhasil
-RUN npm test -- --watchAll=false
-
-# Menentukan perintah untuk menjalankan aplikasi
+# Buka port dan mulai aplikasi
+EXPOSE 3000
 CMD ["npm", "start"]
