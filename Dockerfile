@@ -7,11 +7,14 @@ WORKDIR /app
 # Menyalin file package.json dan package-lock.json ke dalam container
 COPY package*.json ./
 
-# Menginstal dependensi
+# Install dependencies
 RUN npm install
 
-# Menyalin semua file ke dalam container
+# Salin seluruh file ke dalam container
 COPY . .
+
+# Jalankan pengujian saat build
+RUN npm run test
 
 # Menentukan perintah untuk menjalankan aplikasi
 CMD ["npm", "start"]

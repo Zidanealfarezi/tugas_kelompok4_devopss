@@ -15,10 +15,11 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.18.0",
     "@babel/preset-env": "^7.18.0",
     "@babel/preset-react": "^7.18.0",
-    "@babel/plugin-proposal-private-property-in-object": "^7.18.0",
-    "babel-jest": "^27.4.5"
+    "babel-jest": "^27.4.5",
+    "identity-obj-proxy": "^3.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -61,6 +62,9 @@
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!axios)/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    }
   }
 }
