@@ -1,0 +1,27 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main # Workflow ini akan berjalan setiap kali ada push ke branch main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Menjalankan job di lingkungan Ubuntu
+
+    steps:
+      # 1. Checkout kode dari repositori
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # 2. Login ke Docker Hub menggunakan secrets yang disimpan sebelumnya
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # 3. Build Docker Image dari Dockerfile yang ada
+      - name: Build Docker Image
+        run: docker build -t zidane061/myapp:latest .
+
+      # 4. Push Docker Image ke Docker Hub
+      - name: Push Docker Image
+        run: docker push zidane061/myapp:latest
