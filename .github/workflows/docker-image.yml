@@ -39,7 +39,7 @@ jobs:
 
       # 3. Jalankan pengujian pada Docker Image yang dibangun
       - name: Run Tests
-        run: docker run --rm zidane061/myapp:latest npm test
+        run: docker run --rm zidane061/myapp:latest npm test -- --watchAll=false
 
   # Job 3: Push Docker Image (bergantung pada job test)
   push:
