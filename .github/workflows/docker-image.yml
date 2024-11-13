@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Test, and Push Docker Image
 
 on:
   push:
@@ -6,9 +6,11 @@ on:
       - main # Workflow ini akan berjalan setiap kali ada push ke branch main
 
 jobs:
+  # Job 1: Build Docker Image
   build:
     runs-on: ubuntu-latest # Menjalankan job di lingkungan Ubuntu
-
+    outputs:
+      image: zidane061/myapp:latest # Menyimpan nama image sebagai output untuk digunakan di job lain
     steps:
       # 1. Checkout kode dari repositori
       - name: Checkout repository
@@ -20,8 +22,34 @@ jobs:
 
       # 3. Build Docker Image dari Dockerfile yang ada
       - name: Build Docker Image
-        run: docker build -t zidane061/myapp:latest .
+        run: docker build -t zidane061/myapp:latest -f src/Dockerfile .
 
-      # 4. Push Docker Image ke Docker Hub
+  # Job 2: Test Docker Image (bergantung pada job build)
+  test:
+    runs-on: ubuntu-latest
+    needs: build # Menjalankan job ini setelah job build selesai
+    steps:
+      # 1. Login ke Docker Hub
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # 2. Pull Docker Image yang sudah dibangun untuk diuji
+      - name: Pull Docker Image
+        run: docker pull zidane061/myapp:latest
+
+      # 3. Jalankan pengujian pada Docker Image yang dibangun
+      - name: Run Tests
+        run: docker run --rm zidane061/myapp:latest npm test
+
+  # Job 3: Push Docker Image (bergantung pada job test)
+  push:
+    runs-on: ubuntu-latest
+    needs: test # Menjalankan job ini setelah job test berhasil
+    steps:
+      # 1. Login ke Docker Hub
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # 2. Push Docker Image ke Docker Hub
       - name: Push Docker Image
         run: docker push zidane061/myapp:latest

@@ -1,5 +1,5 @@
 # Menggunakan base image
-FROM node:14
+FROM node:18
 
 # Menetapkan direktori kerja di dalam container
 WORKDIR /app
