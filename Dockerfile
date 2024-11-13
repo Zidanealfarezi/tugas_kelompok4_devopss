@@ -13,6 +13,5 @@ COPY . .
 
 RUN npm run build
 
-# Buka port dan mulai aplikasi
 EXPOSE 3000
 CMD ["npm", "start"]
