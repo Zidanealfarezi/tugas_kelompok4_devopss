@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import App from "./App";
 
-test("renders a button with text SHOW", () => {
+test("renders learn react link", () => {
   render(<App />);
-  const buttonElement = screen.getByText(/show/i); // Mencari tombol dengan teks SHOW
-  expect(buttonElement).toBeInTheDocument();
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
 });
