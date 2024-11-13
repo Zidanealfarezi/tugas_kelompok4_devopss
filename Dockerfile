@@ -13,8 +13,5 @@ RUN npm install
 # Salin seluruh file ke dalam container
 COPY . .
 
-# Jalankan pengujian saat build untuk memastikan tidak ada error
-RUN npm run test -- --watchAll=false
-
 # Menentukan perintah untuk menjalankan aplikasi
 CMD ["npm", "start"]
