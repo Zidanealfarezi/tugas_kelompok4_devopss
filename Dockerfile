@@ -8,7 +8,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Salin semua kode aplikasi
+
+
 COPY . .
 
 RUN npm run build
