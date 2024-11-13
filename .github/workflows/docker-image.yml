@@ -22,7 +22,7 @@ jobs:
 
       # 3. Build Docker Image dari Dockerfile yang ada
       - name: Build Docker Image
-        run: docker build -t zidane061/myapp:latest -f src/Dockerfile .
+        run: docker build -t zidane061/myapp:latest -f Dockerfile .
 
   # Job 2: Test Docker Image (bergantung pada job build)
   test:
