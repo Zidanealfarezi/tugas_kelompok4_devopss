@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-catalog
+  labels:
+    app: movie-catalog
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: movie-catalog
+  template:
+    metadata:
+      labels:
+        app: movie-catalog
+    spec:
+      containers:
+        - name: movie-catalog
+          image: zidane061/movie_catalog:latest
+          ports:
+            - containerPort: 3000
