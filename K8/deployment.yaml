@@ -1,24 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: movie-catalog
+  name: movie-app
   labels:
-    app: movie-catalog
+    app: movie-app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: movie-catalog
+      app: movie-app
   template:
     metadata:
       labels:
-        app: movie-catalog
+        app: movie-app
     spec:
       containers:
-        - name: movie-catalog
+        - name: movie-app
           image: zidane061/movie_catalog:latest
           ports:
             - containerPort: 3000
-          env:
-            - name: NODE_ENV
-              value: "production"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"

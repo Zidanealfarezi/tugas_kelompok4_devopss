@@ -1,3 +1,84 @@
+LE 
+ 
+Servernya down kah
+ 
+bsbi
+ 
+babi
+ 
+%%writefile /content/app.py
+ 
+!nohup python3 /content/app.py &
+ 
+from pyngrok import ngrok
+ngrok.set_auth_token("2o8jBYKXtroEVIXNoGG3BafTQmD_3Nc6VAZPYrn1YqP9fpUcf")
+public_url = ngrok.connect(5000)
+print("ngrok URL:", public_url)
+ 
+telfon
+ 
+p
+ 
+ 
+  deploy-to-kubernetes:
+    runs-on: ubuntu-latest
+    needs: push
+   
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+     
+    - name: Setup Minikube
+      uses: medyagh/setup-minikube@master
+     
+    - name: Deploy to Minikube
+      run: |
+        eval $(minikube docker-env)
+        kubectl apply -f k8s/
+        kubectl get pods
+        kubectl get services
+ 
+ 
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-catalog-service
+spec:
+  selector:
+    app: movie-catalog
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
+ 
+ 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-catalog
+  labels:
+    app: movie-catalog
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: movie-catalog
+  template:
+    metadata:
+      labels:
+        app: movie-catalog
+    spec:
+      containers:
+        - name: movie-catalog
+          image: zidane061/movie_catalog:v1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+ 
+ 
 on:
   push:
     branches:
@@ -5,56 +86,56 @@ on:
   pull_request:
     branches:
       - main
-
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout kode
         uses: actions/checkout@v3
-
+ 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-
+ 
       - name: Install dependensi
         run: npm install
-
+ 
       - name: Build proyek
         run: npm run build
-
+ 
   test:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Checkout kode
         uses: actions/checkout@v3
-
+ 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-
+ 
       - name: Install dependensi
         run: npm install
-
+ 
       - name: Jalankan tes
         run: npm test
-
+ 
   push:
     runs-on: ubuntu-latest
     needs: test
     steps:
       - name: Checkout kode
         uses: actions/checkout@v3
-
+ 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
+ 
       - name: Build and push Docker image
         env:
           DOCKER_REPO: zidane061/movie_catalog
@@ -67,20 +148,174 @@ jobs:
           # Push image dengan tag commit SHA dan nama branch
           docker push $DOCKER_REPO:${GITHUB_SHA}
           docker push $DOCKER_REPO:${BRANCH_NAME}
-
+ 
   deploy-to-kubernetes:
     runs-on: ubuntu-latest
     needs: push
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-
+ 
       - name: Setup Minikube
         uses: medyagh/setup-minikube@master
-
+ 
       - name: Deploy to Kubernetes
         run: |
           eval $(minikube docker-env)
           kubectl apply -f K8/
           kubectl get pods
           kubectl get services
+ 
+ 
+ 
+import css from './movieCard.module.css';
+function MovieCard({ movie, max }) {
+ 
+ 
+ 
+ 
+    return (
+        <>
+            <img className={css.image} src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`} alt="Film logo" />
+            <h1>{movie.original_title}</h1>
+            <div className={css.overview}>
+                {movie.overview}<br></br>
+            </div>
+            <div className={css.info}>
+                <div className={css.rating}>{movie.popularity}
+                </div>
+                <meter className={css.progress} value={movie.popularity} max={max}></meter>
+            </div>
+        </>
+    )
+}
+ 
+ 
+export default MovieCard;
+ 
+apiVersion: v1
+
+kind: Service
+
+metadata:
+
+  name: movie-app-service
+
+spec:
+
+  selector:
+
+    app: movie-app
+
+  ports:
+
+    - port: 80
+
+      targetPort: 3000
+
+  type: NodePort
+ 
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+
+  name: movie-app
+
+  labels:
+
+    app: movie-app
+
+spec:
+
+  replicas: 1
+
+  selector:
+
+    matchLabels:
+
+      app: movie-app
+
+  template:
+
+    metadata:
+
+      labels:
+
+        app: movie-app
+
+    spec:
+
+      containers:
+
+        - name: movie-app
+
+          image: zidane061/movie_catalog:latest
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+
+            - containerPort: 3000
+
+          env:
+
+            - name: REACT_APP_TMDB_API
+
+              value: "https://image.tmdb.org/t/p/original"
+ 
+name: Movie App Workflow
+ 
+on:
+
+  push:
+
+    branches:
+
+      - main
+ 
+jobs:
+
+  build-and-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+
+        uses: actions/checkout@v3
+ 
+      - name: Setup Node.js
+
+        uses: actions/setup-node@v3
+
+        with:
+
+          node-version: "18"
+ 
+      - name: Install dependencies
+
+        run: npm install
+ 
+      - name: Build project
+
+        run: npm run build
+ 
+      - name: Setup Minikube
+
+        uses: medyagh/setup-minikube@master
+ 
+      - name: Deploy to Minikube
+
+        run: |
+
+          eval $(minikube docker-env)
+
+          docker build -t movie-app:latest .
+
+          kubectl apply -f deployment.yaml
+
+          kubectl apply -f service.yaml
+ 
