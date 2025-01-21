@@ -19,3 +19,6 @@ spec:
           image: zidane061/movie_catalog:latest
           ports:
             - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"

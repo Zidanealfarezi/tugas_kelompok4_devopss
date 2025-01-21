@@ -61,11 +61,9 @@ jobs:
         run: |
           # Tag branch (misalnya, main) sebagai nama tag
           BRANCH_NAME=${GITHUB_REF##*/}
-
           # Build Docker image
           docker build -t $DOCKER_REPO:${GITHUB_SHA} .
           docker tag $DOCKER_REPO:${GITHUB_SHA} $DOCKER_REPO:${BRANCH_NAME}
-
           # Push image dengan tag commit SHA dan nama branch
           docker push $DOCKER_REPO:${GITHUB_SHA}
           docker push $DOCKER_REPO:${BRANCH_NAME}
@@ -73,15 +71,14 @@ jobs:
   deploy-to-kubernetes:
     runs-on: ubuntu-latest
     needs: push
-
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Minikube
         uses: medyagh/setup-minikube@master
 
-      - name: Deploy to Minikube
+      - name: Deploy to Kubernetes
         run: |
           eval $(minikube docker-env)
           kubectl apply -f K8/
