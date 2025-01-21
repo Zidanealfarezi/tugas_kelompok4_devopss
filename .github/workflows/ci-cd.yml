@@ -44,8 +44,9 @@ jobs:
 
   push:
     runs-on: ubuntu-latest
+    needs: test
     steps:
-      - name: Checkout code
+      - name: Checkout kode
         uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
@@ -72,17 +73,32 @@ jobs:
   deploy-to-kubernetes:
     runs-on: ubuntu-latest
     needs: push
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Checkout kode
+        uses: actions/checkout@v3
 
-      - name: Setup Minikube
-        uses: medyagh/setup-minikube@master
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.26.0"
 
-      - name: Deploy to Minikube
+      - name: Authenticate with Kubernetes cluster
+        env:
+          KUBE_SERVER: ${{ secrets.KUBE_SERVER }}
+          KUBE_TOKEN: ${{ secrets.KUBE_TOKEN }}
         run: |
-          eval $(minikube docker-env)
-          kubectl apply -f K8/
+          kubectl config set-cluster cluster-name --server=$KUBE_SERVER --insecure-skip-tls-verify=true
+          kubectl config set-credentials user --token=$KUBE_TOKEN
+          kubectl config set-context default --cluster=cluster-name --user=user
+          kubectl config use-context default
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f K8/deployment.yaml
+          kubectl apply -f K8/service.yaml
+          kubectl apply -f K8/hpa.yaml
+
+      - name: Verify Deployment
+        run: |
           kubectl get pods
           kubectl get services
